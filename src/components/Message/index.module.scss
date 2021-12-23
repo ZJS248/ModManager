@@ -1,0 +1,76 @@
+@mixin tip {
+  display: inline-block;
+  text-align: center;
+  border-radius: 24px;
+  margin: 0 8px 0 0px;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.Message {
+  width: 250px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.6);
+  padding: 10px 20px;
+  position: fixed;
+  bottom: 20px;
+  right: -250px;
+  transition: all 0.3s ease;
+  color: #fff;
+  z-index: 999;
+  .close {
+    display: inline-block;
+    transform: rotate(45deg);
+    position: absolute;
+    right: 4px;
+    top: 0px;
+    font-size: 24px;
+    &::after {
+      content: '+';
+      color: #333;
+      cursor: pointer;
+    }
+  }
+  .content {
+    display: flex;
+    overflow: hidden;
+    word-break: break-all;
+    word-wrap: break-word;
+    text-overflow: ellipsis; //超出显示省略号
+    display: -webkit-box; //必须，将对象作为弹性伸缩盒子模型显示
+    -webkit-box-orient: vertical; //必须，设置或检索伸缩盒对象的子元素的排列方式 。
+    -webkit-line-clamp: 4; //必须，限制在一个块元素显示的文本的行数
+    margin-block-end: 0;
+    line-height: 24px;
+    letter-spacing: 2px;
+  }
+  &.error {
+    background-color: #f56c6c;
+    .content::before {
+      content: 'error : ';
+      @include tip;
+    }
+  }
+  &.success {
+    background-color: #67c23a;
+    .content::before {
+      content: 'success : ';
+      @include tip;
+    }
+  }
+  &.warning {
+    background-color: #e6a23c;
+    .content::before {
+      content: 'warning : ';
+      @include tip;
+    }
+  }
+  &.info {
+    background-color: #909399;
+  }
+}
+.inActive {
+  transform: translateX(-100%);
+}
