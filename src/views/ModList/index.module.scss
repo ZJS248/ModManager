@@ -36,6 +36,55 @@
     }
   }
   .Main {
-    flex: 1;
+    margin-top: 30px;
+    box-sizing: border-box;
+    padding: 0 20px;
+    .table {
+      font-size: 14px;
+      text-align: center;
+      .thead {
+        .th {
+          border-left: 1px solid #e5e5e5;
+          line-height: 40px;
+          min-width: 60px;
+        }
+        .tr {
+          border-top: 1px solid #e5e5e5;
+        }
+      }
+      .tbody {
+        .td {
+          min-width: 60px;
+          line-height: 40px;
+          border-left: 1px solid #e5e5e5;
+          button {
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            margin: 4px 4px;
+            &.primary {
+              background-color: #409eff;
+            }
+            &.danger {
+              background-color: #f56c6c;
+            }
+            &.warn {
+              background-color: #e6a23c;
+            }
+            &.disabled {
+              cursor: not-allowed;
+            }
+          }
+        }
+      }
+      .tr {
+        display: flex;
+        border-bottom: 1px solid #e5e5e5;
+        border-right: 1px solid #e5e5e5;
+      }
+    }
   }
 }

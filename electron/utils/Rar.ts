@@ -24,7 +24,7 @@ const rar = {
     try {
       await fs.access(outDir)
     } catch {
-      await fs.mkdir(outDir)
+      await fs.mkdir(outDir, { recursive: true })
     }
     return await execute(cmd)
   },
@@ -39,7 +39,7 @@ const rar = {
       await fs.access(target)
       try {
         await fs.access(outDir)
-      } catch {
+      } catch (e) {
         await fs.mkdir(outDir)
       }
       return await execute(cmd)

@@ -24,5 +24,13 @@ const storeApi = {
       })
     })
   },
+  getStoreList: (channelList: string[]): Promise<any[]> => {
+    return new Promise(resolve => {
+      ipcRenderer.send('getStoreList', channelList)
+      ipcRenderer.once('getStoreList', (_e, data) => {
+        resolve(data)
+      })
+    })
+  },
 }
 export default storeApi

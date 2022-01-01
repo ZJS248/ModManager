@@ -15,6 +15,9 @@
     "ecmaVersion": 12,
     "sourceType": "module"
   },
+  "globals": {
+    "Base":"readonly"
+  },
   "plugins": ["react", "prettier", "@typescript-eslint"],
   "rules": {
     "react/prop-types": "off",

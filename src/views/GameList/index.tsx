@@ -3,14 +3,13 @@ import React, { useEffect, useState } from 'react'
 import { createUid } from '@/utils/util'
 // import path from 'path'
 import GameContextMenu from '@/components/GameContextMenu'
-import { AppDataInstance } from './instance'
 import Attribute from '../../components/GameAttribute'
 import Message from '@/components/Message'
 import { useNavigate } from 'react-router-dom'
 export default function GameIconApp() {
   const navigate = useNavigate()
   const [state, setState] = useState({
-    AppData: {} as Record<string, AppDataInstance | null>,
+    AppData: {} as Record<string, Base.AppDataInstance | null>,
     /**菜单显示位置 */
     contextLeft: 0,
     contextTop: 0,
@@ -18,7 +17,7 @@ export default function GameIconApp() {
     context: '',
     /**应用程序属性菜单 */
     attribute: false,
-    app: null as AppDataInstance | null,
+    app: null as Base.AppDataInstance | null,
   })
   /** 添加应用程序文件信息 */
   const handleDirPath = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,7 +76,7 @@ export default function GameIconApp() {
     )
   }
   /** 渲染应用程序列表 */
-  const AppList = Object.keys(state.AppData).map(key => {
+  const AppList = Object.keys(state.AppData || {}).map(key => {
     const app = state.AppData[key]
     if (!app) return null
     return (
@@ -117,7 +116,7 @@ export default function GameIconApp() {
     })
   }
   /**保存应用更改设置 */
-  const saveAppChange = (app: AppDataInstance) => {
+  const saveAppChange = (app: Base.AppDataInstance) => {
     const AppData = {
       ...state.AppData,
       [app.uid]: app,

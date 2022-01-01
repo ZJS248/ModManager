@@ -15,3 +15,10 @@ ipcMain.on('setStore', (event, channel: string, data: any) => {
 ipcMain.on('getStore', (event, channel: string) => {
   event.reply('getStore', store.get(channel))
 })
+ipcMain.on('getStoreList', (event, channelList: string[]) => {
+  const arr: unknown[] = []
+  channelList.forEach(channel => {
+    arr.push(store.get(channel))
+  })
+  event.reply('getStoreList', arr)
+})
