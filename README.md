@@ -1,14 +1,9 @@
 ## Electron + TypeScript + React
 
-Boilerplate for a project using Electron, React and Typescript.
+Mod Manager with some simple function , as for .zip files you can install unistall or delete them relative a game directory
 
-## Installation
+针对不同的游戏简单的管理一些.zip格式的 mod 文件
 
-Use a package manager of your choice (npm, yarn, etc.) in order to install all dependencies
-
-```bash
-yarn
-```
 
 ## Usage
 
@@ -25,10 +20,6 @@ To generate the project package based on the OS you're running on, just run:
 ```bash
 yarn package
 ```
-
-## Contributing
-
-Pull requests are always welcome 😃.
 
 ## License
 

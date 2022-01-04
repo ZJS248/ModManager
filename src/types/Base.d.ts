@@ -1,3 +1,4 @@
+import type { IZipEntry } from 'adm-zip'
 import type { ParsedPath } from 'path'
 export as namespace Base
 export interface AppDataInstance {
@@ -15,4 +16,6 @@ export interface ModDataInstance extends ParsedPath {
   category?: string
   remarks?: string
   isinstall: boolean
+  /**mod文件包含相对根文件夹的所有路径名 */
+  files: { isDirectory: boolean; entryName: string }[]
 }

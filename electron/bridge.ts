@@ -3,7 +3,8 @@ import storeApi from './bridge/store'
 import fs from 'fs/promises'
 import compressing from 'compressing'
 import path from 'path'
-import { createReadStream, createWriteStream, WriteStream } from 'original-fs'
+
+import AdmZip from 'adm-zip-iconv'
 const api = {
   /**
    * Here you can expose functions to the renderer process
@@ -39,16 +40,15 @@ const api = {
     switch (ext) {
       // case 'rar':
       //   return rar.decompress(target, outDir)
-      case 'zip':
-      case 'tgz':
-      case 'tar':
-      case 'gzip': {
+      case 'zip': {
         try {
           await fs.access(outDir)
         } catch {
           await fs.mkdir(outDir, { recursive: true })
         }
-        return compressing[ext].uncompress(target, outDir)
+        return compressing[ext].uncompress(target, outDir, {
+          zipFileNameEncoding: 'gbk',
+        })
       }
       default:
         throw new Error('不支持的文件类型')
@@ -56,41 +56,9 @@ const api = {
   },
   readZipFile: (target: string) => {
     const ext = path.parse(target).ext.slice(1) //文件后缀名
-    async function onEntry(
-      header: compressing.streamHeader,
-      stream: WriteStream,
-      next: () => void
-    ) {
-      stream.on('end', next)
-      if (header.type === 'file') {
-        console.log(header)
-        const dest = path.resolve(__dirname, '../../../public')
-        const infomation = path.parse(header.name)
-        await fs.mkdir(path.join(dest, infomation.dir), { recursive: true })
-        stream.pipe(createWriteStream(path.join(dest, header.name)))
-      } else {
-        console.log(header)
-      }
-    }
     switch (ext) {
-      // case 'rar':
-      //   return rar.decompress(target, outDir)
-      case 'zip':
-      case 'tgz':
-      case 'tar': {
-        return new Promise((resolve, reject) => {
-          const stream = new compressing[ext].UncompressStream({
-            source: target,
-          })
-            .on('error', err => reject(err))
-            .on('finish', () => {
-              console.log('close')
-            }) // uncompressing is done
-            .on('entry', onEntry)
-            .on('end', data => {
-              console.log('end')
-            })
-        })
+      case 'zip': {
+        return new AdmZip(target, 'GBK').getEntries()
       }
       default:
         throw new Error('不支持的文件类型')
@@ -110,12 +78,31 @@ const api = {
     await fs.copyFile(target, path.join(outDir, filename))
     // return fs.copyFile(target, path.join(outDir, filename))
   },
+  /**删除文件 */
   deleteFile: (path: string) => {
     return fs
       .access(path)
       .then(() => fs.unlink(path))
-      .catch(() => {
-        throw new Error('文件不存在')
+      .catch(e => console.log(e))
+  },
+  /**递归删除文件夹 */
+  deleteDir: (target: string) => {
+    return fs
+      .readdir(target)
+      .then(async files => {
+        for (const str of files) {
+          const filePath = path.join(target, str)
+          const stat = await fs.stat(filePath)
+          if (stat.isDirectory()) {
+            await api.deleteDir(filePath)
+          } else {
+            await fs.unlink(filePath)
+          }
+        }
+        await fs.rmdir(target)
+      })
+      .catch(e => {
+        console.log(e)
       })
   },
   path: path,

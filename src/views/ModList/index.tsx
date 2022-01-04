@@ -1,4 +1,3 @@
-import { createUid } from '@/utils/util'
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import style from './index.module.scss'
@@ -18,42 +17,75 @@ export default function (props: Props) {
   const handleZipFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const target = e.target.files?.[0]
     const targetName = target?.name || ''
-    if (target && /(.tar|.zip|.tgz|.gzip)$/.test(targetName)) {
+    if (target && /(.zip)$/.test(targetName)) {
       const reactivePath = nodePath.join(
         window.Main.getReactivePath() + `/mods/${state.gameData.name}/`
       )
       window.Main.copyFile(target.path, reactivePath, target.name).then(() => {
         const path = nodePath.join(reactivePath, target.name)
         const information = nodePath.parse(path)
-        saveFileState({
+        const files = window.Main.readZipFile(path).map(item => ({
+          entryName: item.entryName,
+          isDirectory: item.isDirectory,
+        }))
+        const result = {
           ...information,
           path,
           date: dayjs().format('YYYY-MM-DD HH:mm'),
           isinstall: false,
-        })
+          files: files,
+        }
+        const dataset = state.modData[state.uid] || {}
+        if (dataset[result.name]) {
+          if (dataset[result.name].isinstall) {
+            return alert('文件已存在')
+          } else if (!confirm('文件已存在，确定要覆盖吗？')) {
+            saveFileState(result)
+          }
+        } else {
+          saveFileState(result)
+        }
       })
     } else {
       alert('文件不合法')
       e.target.files = null
     }
   }
+  /**安装文件 */
   const installModFile = (target: Base.ModDataInstance) => {
-    const modPath = nodePath.join(
-      state.gameData.dir,
-      state.gameData.modDir,
-      './test'
-    )
+    const modPath = nodePath.join(state.gameData.dir, state.gameData.modDir)
     window.Main.unzipFile(target.path, modPath).then(async () => {
       const result = { ...target, isinstall: true }
-      await saveFileState(result, false)
+      await saveFileState(result)
       Message.success('安装成功')
     })
   }
 
-  const removeModFile = (target: Base.ModDataInstance) => {
-    window.Main.readZipFile(target.path)
+  /**移除已安装的文件 */
+  const uninstallModFile = async (target: Base.ModDataInstance) => {
+    const directorys: string[] = []
+    for (const item of target.files) {
+      if (directorys.some(dir => item.entryName.startsWith(dir))) {
+        continue
+      }
+      const rootPath = nodePath.join(
+        state.gameData.dir,
+        state.gameData.modDir,
+        item.entryName
+      )
+      if (item.isDirectory) {
+        directorys.push(item.entryName)
+        await window.Main.deleteDir(rootPath)
+      } else {
+        await window.Main.deleteFile(rootPath)
+      }
+    }
+    const result = { ...target, isinstall: false }
+    saveFileState(result).then(() => {
+      Message.success('卸载成功')
+    })
   }
-
+  /**删除mod文件 */
   const deleteModFile = async (target: Base.ModDataInstance) => {
     if (target.isinstall) return false
     if (confirm(`删除文件不可恢复，确定要删除${target.name}吗？`)) {
@@ -72,16 +104,7 @@ export default function (props: Props) {
     }
   }
   /**保存mod文件树 */
-  const saveFileState = (data: Base.ModDataInstance, showConfirm = true) => {
-    const isExist = (state.modData[state.uid] || {})[data.name]
-    if (isExist && showConfirm) {
-      if (isExist.isinstall) {
-        return alert('请卸载mod文件后再操作')
-      }
-      if (!confirm('文件已存在，确定要覆盖吗？')) {
-        return Promise.resolve(null)
-      }
-    }
+  const saveFileState = (data: Base.ModDataInstance) => {
     const result = { ...(state.modData[state.uid] || {}), [data.name]: data }
     const modData = {
       ...state.modData,
@@ -166,7 +189,7 @@ export default function (props: Props) {
                       {item.isinstall ? (
                         <button
                           className={style.warn}
-                          onClick={() => removeModFile(item)}
+                          onClick={() => uninstallModFile(item)}
                         >
                           卸载
                         </button>
