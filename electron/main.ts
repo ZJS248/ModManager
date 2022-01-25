@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import './event'
+import './menu'
 // import verifyWindowIsVisibleWithTitle from './dev'
 let mainWindow: BrowserWindow | null
 

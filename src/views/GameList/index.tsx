@@ -1,7 +1,6 @@
 import style from './index.module.scss'
 import React, { useEffect, useState } from 'react'
 import { createUid } from '@/utils/util'
-// import path from 'path'
 import GameContextMenu from '@/components/GameContextMenu'
 import Attribute from '../../components/GameAttribute'
 import Message from '@/components/Message'
@@ -64,6 +63,9 @@ export default function GameIconApp() {
         context: key || '',
         app: state.AppData[key],
       })
+      window.Main.showGameContextMenu('game-context-menu', key).then(res => {
+        console.log(res)
+      })
     }
   }
   /** 添加按钮 */
@@ -103,15 +105,21 @@ export default function GameIconApp() {
     const file = state.AppData[context]
     hiddenMenu()
     setTimeout(() => {
-      if (file && confirm(`你确定要移除${file.name}🐎?`)) {
-        const AppData = { ...state.AppData, [context]: null }
-        setState({
-          ...state,
-          AppData: AppData,
-          context: '',
-          app: null,
-        })
-        window.Store.setStore('appData', AppData)
+      if (file && confirm(`你确定要移除${file.name}吗?`)) {
+        if (confirm(`该操作不会卸载已经安装的mod文件，确定继续吗?`)) {
+          const AppData = { ...state.AppData, [context]: null }
+          setState({
+            ...state,
+            AppData: AppData,
+            context: '',
+            app: null,
+          })
+          window.Store.setStore('appData', AppData)
+          const reactivePath = window.Main.path.join(
+            window.Main.getReactivePath() + `/mods/${file.name}/`
+          )
+          window.Main.deleteDir(reactivePath)
+        }
       }
     })
   }

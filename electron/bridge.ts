@@ -112,6 +112,18 @@ const api = {
   on: (channel: string, callback: Function) => {
     ipcRenderer.on(channel, (_, data) => callback(data))
   },
+  showGameContextMenu: (channel: string, param: any) => {
+    ipcRenderer.send(channel, param)
+    return new Promise(resolve => {
+      ipcRenderer.once('game-context-menu-remove', (event, key: string) => {
+        resolve({ type: 'remove', key })
+      })
+      ipcRenderer.once('game-context-menu-close', () => {
+        console.log('will close')
+        resolve({ type: 'close' })
+      })
+    })
+  },
 }
 
 contextBridge.exposeInMainWorld('Main', api)
